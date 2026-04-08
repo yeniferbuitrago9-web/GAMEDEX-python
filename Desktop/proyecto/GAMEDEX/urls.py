@@ -4,9 +4,16 @@ from . import views
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.shortcuts import redirect, render
+
+def inicio(request):
+    return render(request, 'inicio.html')
 
 
 urlpatterns = [
+
+     path('', inicio),  
+    path('inicio/', inicio, name='inicio'),
 
     path('admin/', admin.site.urls),
     
@@ -49,9 +56,38 @@ urlpatterns = [
     #comprar carrito
     path("comprar/", views.comprar_carrito, name="comprar_carrito"),
     path("factura/", views.factura, name="factura"),
-    path("factura/pdf/", views.descargar_factura_pdf, name="descargar_factura_pdf"),
+    path("descargar-factura/", views.descargar_factura_pdf, name="descargar_factura_pdf"),
+
+    #editar perfil
+    path('editar-perfil/', views.editar_perfil, name='editar_perfil'),
+    path('editar-perfil/', views.editar_perfil, name='editar_perfil'),
 
 
+    path("exportar-pdf/", views.exportar_pdf_vendedor, name="exportar_pdf_vendedor"),
+    path("exportar-excel/", views.exportar_excel_vendedor, name="exportar_excel_vendedor"),
+
+
+    path('exportar-pdf-usuarios/', views.exportar_pdf_usuarios, name='exportar_pdf_usuarios'),
+    path('exportar-excel-usuarios/', views.exportar_excel_usuarios, name='exportar_excel_usuarios'),
+
+    path('inventario/pdf/', views.exportar_pdf_inventario, name='exportar_pdf_inventario'),
+    path('inventario/excel/', views.exportar_excel_inventario, name='exportar_excel_inventario'),
+
+
+    path('destacar/<int:producto_id>/', views.toggle_destacado, name='toggle_destacado'),
+
+
+    path('comunidades/', views.lista_comunidades, name='comunidades'),
+    path('comunidad/<int:id>/', views.ver_comunidad, name='ver_comunidad'),
+    path('comunidad/crear/', views.crear_comunidad, name='crear_comunidad'),
+    path('comunidad/<int:id>/editar/', views.editar_comunidad, name='editar_comunidad'),
+    path('comunidad/<int:id>/eliminar/', views.eliminar_comunidad, name='eliminar_comunidad'),
+
+    path('like/<int:id>/', views.dar_like, name='dar_like'),
+    path('comentar/<int:id>/', views.comentar, name='comentar'),
+        
+    path('comunidad/<int:id>/crear_publicacion/', views.crear_publicacion_ajax, name='crear_publicacion_ajax'),
+     path('eliminar_publicacion/<int:post_id>/', views.eliminar_publicacion, name='eliminar_publicacion'),
 ]
 
 if settings.DEBUG:

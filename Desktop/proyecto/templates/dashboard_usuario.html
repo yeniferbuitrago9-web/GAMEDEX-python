@@ -27,13 +27,17 @@ body{
 /*===============================*/
 
 .sidebar{
-
-    width: 220px;
+    width: 180px;
     background: #202459;
     color: white;
-    height: 100vh;
+    height: 100vh;          /* ocupa toda la pantalla */
     padding:20px;
-    
+    position: fixed;        /* 🔥 lo fija */
+    top: 0;
+    left: 0;
+    border-radius:0 0 12px 0;
+    line-height: 3.5;
+
 }
 
 .sidebar h2{
@@ -71,10 +75,11 @@ body{
 
 
 .main{
-
     flex:1;
     display:flex;
     flex-direction:column;
+    margin-left: 220px;   /* 🔥 mismo ancho del sidebar */
+    align-items:right;
 }
 
 /*===============================*/
@@ -243,15 +248,15 @@ body{
 <h2>GAMEDEX</h2>
 
 <a href="{% url 'ver_carrito' %}">
-Ver carrito
+📦 carrito
 <span class="badge">{{ total_carrito }}</span>
 </a>
 
-<a href="#">Editar perfil</a>
+<a href="{% url 'editar_perfil' %}"> 👥 Editar perfil</a>
 
-<a href="#">Comunidades</a>
+<a href="{% url 'comunidades' %}">🌎 Comunidades</a>
 
-<a href="/logout/">Cerrar sesión</a>
+<a href="/logout/"> 🚪Cerrar sesión</a>
 
 </div>
 
@@ -317,9 +322,10 @@ Ver carrito
 
 <input type="number" name="cantidad" value="1" min="1" style="width:60px; padding:5px;">
 
-<button type="submit" class="btn">
-Añadir al carrito
+<button onclick="agregarCarrito({{ producto.id }})">
+    Agregar al carrito 🛒
 </button>
+
 
 </form>
 

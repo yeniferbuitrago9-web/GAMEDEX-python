@@ -1,10 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db import models
-from django.contrib.auth.models import User
 
 
-# Modelo de perfil para extender el modelo de usuario
+# =========================
+# PERFIL DE USUARIO
+# =========================
 class Perfil(models.Model):
 
     ROLES = (
@@ -28,9 +28,12 @@ class Perfil(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.rol}"
 
-#vendedor 
 
+# =========================
+# PRODUCTO
+# =========================
 class Producto(models.Model):
+
     vendedor = models.ForeignKey(User, on_delete=models.CASCADE)
 
     nombre = models.CharField(max_length=100)
@@ -40,12 +43,56 @@ class Producto(models.Model):
     cantidad = models.PositiveIntegerField(default=1)
     dias_garantia = models.PositiveIntegerField(default=0)
 
-    imagen = models.ImageField(upload_to="productos/", null=True, blank=True)
+    imagen = models.ImageField(
+        upload_to="productos/",
+        null=True,
+        blank=True,
+        default="productos/default.png"  # 👈 evita errores si no hay imagen
+    )
 
     publicado = models.BooleanField(default=False)
+    destacado = models.BooleanField(default=False)  # 👈 clave para productos destacados
 
     creado = models.DateTimeField(auto_now_add=True)
     modificado = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.nombre
+# =========================
+# comunidades 
+# =========================
+
+class Comunidad(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField()
+    creador = models.ForeignKey(User, on_delete=models.CASCADE)
+    imagen = models.ImageField(upload_to='comunidades/', null=True, blank=True)
+    creado = models.DateTimeField(auto_now_add=True)
+    modificado = models.DateTimeField(auto_now=True)
+    
+
+    def __str__(self):
+        return self.nombre
+
+
+class Publicacion(models.Model):
+    comunidad = models.ForeignKey(Comunidad, on_delete=models.CASCADE)
+    autor = models.ForeignKey(User, on_delete=models.CASCADE)
+    contenido = models.TextField()
+    imagen = models.ImageField(upload_to='posts/', null=True, blank=True)
+    creado = models.DateTimeField(auto_now_add=True)
+
+
+    # 👍 Likes reales
+    likes = models.ManyToManyField(User, related_name='likes', blank=True)
+
+    def total_likes(self):
+        return self.likes.count()
+
+
+class Comentario(models.Model):
+    publicacion = models.ForeignKey(Publicacion, on_delete=models.CASCADE, related_name="comentarios")
+    autor = models.ForeignKey(User, on_delete=models.CASCADE)
+    contenido = models.TextField()
+    creado = models.DateTimeField(auto_now_add=True)
+    

@@ -4,65 +4,107 @@
 <html>
 
 <head>
-
 <title>Factura</title>
 
 <style>
 
 body{
-    font-family: Arial;
-    background:#f5f5f5;
+    font-family: 'Segoe UI', Arial;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
     padding:40px;
 }
 
+/* CONTENEDOR */
 .factura{
-
     background:white;
-    padding:30px;
-    border-radius:10px;
-    max-width:800px;
+    padding:40px;
+    border-radius:15px;
+    max-width:900px;
     margin:auto;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
 }
 
-h1{
-    text-align:center;
+/* HEADER */
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
 }
 
+.titulo{
+    font-size:28px;
+    font-weight:bold;
+    color:#202459;
+}
+
+.cliente{
+    font-size:14px;
+    color:#555;
+}
+
+/* TABLA */
 .tabla{
     width:100%;
     border-collapse:collapse;
     margin-top:20px;
 }
 
-.tabla th, .tabla td{
-    border:2px solid #000000;
-    padding:10px;
-    text-align:center;
-}
-
 .tabla th{
     background:#202459;
     color:white;
+    padding:12px;
 }
 
+.tabla td{
+    padding:12px;
+    border-bottom:1px solid #ddd;
+}
+
+/* HOVER FILAS */
+.tabla tr:hover{
+    background:#f5f5f5;
+}
+
+/* TOTAL */
 .total{
-    margin-top:20px;
-    font-size:20px;
-    font-weight:bold;
+    margin-top:30px;
     text-align:right;
+    font-size:22px;
+    font-weight:bold;
+    color:#111;
 }
 
+/* BOTONES */
 .botones{
-    margin-top:30px;
+    margin-top:40px;
     text-align:center;
 }
 
 .btn{
-    padding:10px 20px;
-    background:#28a745;
-    color:white;
+    padding:12px 25px;
+    border-radius:8px;
     text-decoration:none;
-    border-radius:6px;
+    color:white;
+    margin:10px;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+/* DESCARGAR */
+.btn-descargar{
+    background:#28a745;
+}
+.btn-descargar:hover{
+    background:#1e7e34;
+}
+
+/* VOLVER */
+.btn-volver{
+    background:#202459;
+}
+.btn-volver:hover{
+    background:#0f1230;
 }
 
 </style>
@@ -73,45 +115,55 @@ h1{
 
 <div class="factura">
 
-<h1>Factura de compra</h1>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="titulo">🧾 Factura de Compra GAMEDEX</div>
+        <div class="cliente">
+            <b>Cliente:</b> {{ usuario.username }} <br>
+            <b>Fecha:</b> {% now "d/m/Y H:i" %}
+        </div>
+    </div>
 
-<p><b>Cliente:</b> {{ usuario.username }}</p>
+    <!-- TABLA -->
+    <table border="3" class="tabla">
 
-<table class="tabla">
+        <tr>
+            <th>Producto</th>
+            <th>Descripción</th>
+            <th>Precio Unitario</th>
+            <th>Cantidad</th>
+            <th>Subtotal</th>
+        </tr>
 
-<tr>
-<th>Producto</th>
-<th>Precio</th>
-<th>Cantidad</th>
-<th>Subtotal</th>
-</tr>
+        {% for item in productos %}
+        <tr>
+            <td><b>{{ item.nombre }}</b></td>
+            <td>{{ item.descripcion }}</td>
+            <td>${{ item.precio }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>${{ item.subtotal }}</td>
+        </tr>
+        {% endfor %}
 
-{% for item in productos %}
+    </table>
 
-<tr>
+    <!-- TOTAL -->
+    <div class="total">
+        Total a pagar: ${{ total }}
+    </div>
 
-<td>{{ item.producto.nombre }}</td>
-<td>${{ item.producto.precio }}</td>
-<td>{{ item.cantidad }}</td>
-<td>${{ item.subtotal }}</td>
+    <!-- BOTONES -->
+    <div class="botones">
 
-</tr>
+        <a href="{% url 'descargar_factura_pdf' %}" class="btn btn-descargar">
+            📄 Descargar PDF
+        </a>
 
-{% endfor %}
+        <a href="{% url 'dashboard_usuario' %}" class="btn btn-volver">
+            🏠 Volver a la tienda
+        </a>
 
-</table>
-
-<div class="total">
-Total: ${{ total }}
-</div>
-
-<div class="botones">
-
-<a href="{% url 'descargar_factura_pdf' %}" class="btn">
-Descargar PDF
-</a>
-
-</div>
+    </div>
 
 </div>
 

@@ -1,48 +1,99 @@
 {% extends "layouts/admin_base.html" %}
 {% block content %}
 
-<h1 style="margin-bottom:30px; margin-left:10px; margin-right:10px; color: #fff; background: #122A54; padding:10px; border-radius:5px;">Inventario General</h1>
+<h1 style="margin:20px; color:#fff; background:#122A54; padding:15px; border-radius:8px; text-align:center;">
+    Inventario General
+</h1>
 
+<!-- 🔍 BUSCADOR + FILTROS -->
+<form method="GET" style="margin:10px; display:flex; gap:10px; flex-wrap:wrap;">
+
+    <input type="text" name="q" placeholder="Buscar producto..."
+           value="{{ query }}"
+           style="padding:8px; border-radius:5px; border:1px solid #ccc;">
+
+    <select name="filtro" style="padding:8px; border-radius:5px;">
+        <option value="">Todos</option>
+        <option value="stock_bajo" {% if filtro == "stock_bajo" %}selected{% endif %}>Stock bajo</option>
+        <option value="sin_stock" {% if filtro == "sin_stock" %}selected{% endif %}>Sin stock</option>
+    </select>
+
+    <button type="submit" style="background:#122A54; color:white; padding:8px 15px; border:none; border-radius:5px;">
+        Buscar
+    </button>
+
+</form>
+
+<!-- 📥 EXPORTACIONES -->
+<div style="margin:10px; display:flex; gap:10px;">
+
+    <a href="{% url 'exportar_pdf_inventario' %}"
+       style="background:#e74c3c; color:white; padding:8px 15px; text-decoration:none; border-radius:5px;">
+        Exportar PDF
+    </a>
+
+    <a href="{% url 'exportar_excel_inventario' %}"
+       style="background:#27ae60; color:white; padding:8px 15px; text-decoration:none; border-radius:5px;">
+        Exportar Excel
+    </a>
+
+</div>
+
+<!-- 📊 TABLA -->
 <table style="margin:10px; width:100%; border-collapse: collapse; background:white;">
 
-    <thead style="background: #122A54; color:white;">
+    <thead style="background:#122A54; color:white;">
         <tr>
-            <th style="padding:10px;">ID</th>
-            <th style="padding:10px;">Producto</th>
-            <th style="padding:10px;">Precio</th>
-            <th style="padding:10px;">Stock</th>
-            <th style="padding:10px;">Vendedor</th>
-            <th style="padding:10px;">Acciones</th>
+            <th>ID</th>
+            <th>Producto</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Vendedor</th>
+            <th>Acciones</th>
         </tr>
     </thead>
 
     <tbody>
-
     {% for producto in productos %}
-
         <tr style="border-bottom:1px solid #ddd; text-align:center;">
-
-            <td>{{ producto.id }}</td> 
+            <td>{{ producto.id }}</td>
             <td>{{ producto.nombre }}</td>
+            <td>{{ producto.descripcion }}</td>
             <td>${{ producto.precio }}</td>
             <td>{{ producto.cantidad }}</td>
             <td>{{ producto.vendedor.username }}</td>
 
             <td>
-
                 <a href="{% url 'eliminar_producto_admin' producto.id %}"
-                style="background:red; color:white; padding:6px 12px; text-decoration:none; border-radius:5px;">
-                Eliminar
+                   onclick="return confirm('¿Eliminar producto?');"
+                   style="background:red; color:white; padding:6px 12px; border-radius:5px;">
+                   Eliminar
                 </a>
-
             </td>
-
         </tr>
-
     {% endfor %}
-
     </tbody>
 
 </table>
+
+<!-- 📄 PAGINACIÓN -->
+<div style="margin:20px; text-align:center;">
+
+    {% if productos.has_previous %}
+        <a href="?page=1&q={{ query }}&filtro={{ filtro }}">Primera</a>
+        <a href="?page={{ productos.previous_page_number }}&q={{ query }}&filtro={{ filtro }}">Anterior</a>
+    {% endif %}
+
+    <span style="margin:0 10px;">
+        Página {{ productos.number }} de {{ productos.paginator.num_pages }}
+    </span>
+
+    {% if productos.has_next %}
+        <a href="?page={{ productos.next_page_number }}&q={{ query }}&filtro={{ filtro }}">Siguiente</a>
+        <a href="?page={{ productos.paginator.num_pages }}&q={{ query }}&filtro={{ filtro }}">Última</a>
+    {% endif %}
+
+</div>
 
 {% endblock %}
