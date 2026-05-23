@@ -1,239 +1,200 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html>
-
 <head>
-
-<title>Tienda</title>
+<title>GAMEDEX | Tienda</title>
 
 <style>
 
-/*===============================*/
-/* GENERAL */
-/*===============================*/
+/* ================= GLOBAL ================= */
 
 body{
     margin:0;
-    font-family: Arial;
+    font-family: 'Segoe UI', sans-serif;
     display:flex;
-    background-image:url("{% static 'imagenes/fondo-admin.avif' %}");
-    background-size:cover;
-    background-attachment:fixed;
+    background: radial-gradient(circle at top, #0f172a, #020617);
+    color:white;
 }
 
-/*===============================*/
-/* SIDEBAR */
-/*===============================*/
+/* ================= SIDEBAR ================= */
 
 .sidebar{
-    width: 180px;
-    background: #202459;
-    color: white;
-    height: 100vh;          /* ocupa toda la pantalla */
-    padding:20px;
-    position: fixed;        /* 🔥 lo fija */
-    top: 0;
-    left: 0;
-    border-radius:0 0 12px 0;
-    line-height: 3.5;
-
+    width:220px;
+    background: linear-gradient(180deg, #0f172a, #020617);
+    height:100vh;
+    padding:25px;
+    position:fixed;
+    border-right:1px solid rgba(0,255,255,0.2);
 }
 
 .sidebar h2{
-    margin-bottom:40px;
+    color:#00f7ff;
+    text-shadow:0 0 10px #00f7ff;
 }
 
 .sidebar a{
-
     display:block;
-    color:white;
+    color:#cbd5e1;
     text-decoration:none;
-    margin:15px 0;
+    margin:20px 0;
+    transition:0.3s;
 }
 
 .sidebar a:hover{
-    color: #00d4ff;
+    color:#00f7ff;
+    transform:translateX(5px);
 }
 
-/*===============================*/
-/* CONTADOR CARRITO */
-/*===============================*/
+/* badge carrito */
 
 .badge{
-
-    background:red;
-    padding:3px 8px;
+    background:#ff004c;
+    padding:4px 9px;
     border-radius:50%;
     font-size:12px;
-    margin-left:5px;
 }
 
-/*===============================*/
-/* CONTENIDO PRINCIPAL */
-/*===============================*/
-
+/* ================= MAIN ================= */
 
 .main{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    margin-left: 220px;   /* 🔥 mismo ancho del sidebar */
-    align-items:right;
+    margin-left:240px;
+    width:100%;
 }
 
-/*===============================*/
-/* BARRA SUPERIOR */
-/*===============================*/
-
+/* ================= TOPBAR ================= */
 
 .topbar{
-
-    background:rgba(0,0,0,0.7);
-    color:white;
+    background: rgba(15,23,42,0.8);
+    backdrop-filter: blur(10px);
     padding:15px 30px;
-    border-radius:0 0 12px 12px;
-    display:flex;
+    border-bottom:1px solid rgba(0,255,255,0.2);
 }
 
-/*===============================*/
-/* CONTENIDO */
-/*===============================*/
-
-
-.contenido{
-    align-self:center;
-    color: #ffffff;
-    height:10%;
+.topbar h3{
+    color:#00f7ff;
 }
 
+/* ================= MENSAJES ================= */
 
-/*===============================*/
-/* GRID PRODUCTOS */
-/*===============================*/
+.contenedor-mensajes{
+    position: fixed;
+    top: 20px;
+    right: 20px;
+}
+
+.mensaje-alerta{
+    background: linear-gradient(45deg, #1e293b, #0f172a);
+    border-left:4px solid #00f7ff;
+    padding:12px 20px;
+    margin-bottom:10px;
+    border-radius:8px;
+    animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn{
+    from{ transform: translateX(200px); opacity:0; }
+    to{ transform: translateX(0); opacity:1; }
+}
+
+/* ================= TITULO ================= */
+
+.titulo{
+    padding:30px;
+    font-size:28px;
+    font-weight:bold;
+    text-shadow:0 0 10px #00f7ff;
+}
+
+/* ================= GRID ================= */
 
 .grid{
-
     display:grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px,1fr));
     gap:25px;
+    padding:20px;
 }
 
-/*===============================*/
-/* TARJETA PRODUCTO */
-/*===============================*/
+/* ================= CARD ================= */
 
 .card{
-
-    background:white;
-    border-radius:10px;
+    background: linear-gradient(145deg, #020617, #0f172a);
+    border-radius:15px;
     overflow:hidden;
-    box-shadow:0 4px 10px rgba(0,0,0,0.1);
     transition:0.3s;
-    margin:20px;
+    border:1px solid rgba(0,255,255,0.1);
 }
 
 .card:hover{
-    transform:translateY(-5px);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow:0 0 20px rgba(0,255,255,0.4);
 }
 
-/*===============================*/
-/* IMAGEN */
-/*===============================*/
+/* imagen */
 
 .card img{
-
     width:100%;
     height:200px;
     object-fit:cover;
 }
 
-/*===============================*/
-/* CUERPO TARJETA */
-/*===============================*/
+/* body */
 
 .card-body{
-
     padding:15px;
 }
 
 .card-body h3{
-
-    margin:10px 0;
-    color: #333333;
+    color:#00f7ff;
 }
 
 .card-body p{
-
-    color: #000000;
+    color:#cbd5e1;
     font-size:14px;
 }
 
-/*===============================*/
-/* BOTON */
-/*===============================*/
+/* precio */
+
+.precio{
+    font-size:18px;
+    color:#22c55e;
+    font-weight:bold;
+}
+
+/* input cantidad */
+
+input[type="number"]{
+    width:60px;
+    padding:5px;
+    border-radius:5px;
+    border:none;
+    margin-top:10px;
+}
+
+/* boton gamer */
 
 .btn{
-
     display:block;
     margin-top:10px;
-    background: #007bff;
+    background: linear-gradient(45deg, #00f7ff, #007cf0);
     color:white;
-    text-align:center;
     padding:10px;
-    border-radius:6px;
-    text-decoration:none;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.3s;
 }
 
 .btn:hover{
-    background: #0056b3;
+    transform:scale(1.05);
+    box-shadow:0 0 10px #00f7ff;
 }
 
-/*===============================*/
-/* contenedor de notificaciones */
-/*===============================
+/* stock */
 
-.contenedor-mensajes{
-
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 9999;
+.stock{
+    font-size:12px;
+    color:#94a3b8;
 }
-
-/* mensaje */
-
-.mensaje-alerta{
-
-    background: #2b2779;
-    color: white;
-    padding: 12px 20px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    min-width: 250px;
-
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-
-    animation: slideIn 0.5s ease;
-
-}
-
-/* animacion entrada */
-
-@keyframes slideIn{
-
-    from{
-        transform: translateX(300px);
-        opacity:0;
-    }
-
-    to{
-        transform: translateX(0);
-        opacity:1;
-    }
-
-}
-
 
 </style>
 
@@ -241,59 +202,51 @@ body{
 
 <body>
 
-<!-- MENU LATERAL -->
+<!-- SIDEBAR -->
 
 <div class="sidebar">
 
-<h2>GAMEDEX</h2>
+<h2>🎮 GAMEDEX</h2>
 
 <a href="{% url 'ver_carrito' %}">
-📦 carrito
-<span class="badge">{{ total_carrito }}</span>
+🛒 Carrito <span class="badge">{{ total_carrito }}</span>
 </a>
 
-<a href="{% url 'editar_perfil' %}"> 👥 Editar perfil</a>
+<a href="{% url 'editar_perfil' %}">👤 Perfil</a>
 
 <a href="{% url 'comunidades' %}">🌎 Comunidades</a>
 
-<a href="/logout/"> 🚪Cerrar sesión</a>
+<a href="/logout/">🚪 Salir</a>
 
 </div>
 
-
-<!-- CONTENIDO PRINCIPAL -->
+<!-- MAIN -->
 
 <div class="main">
 
-<!-- BARRA SUPERIOR -->
+<!-- TOPBAR -->
 
 <div class="topbar">
-
 <h3>Bienvenido, {{ request.user.username }}</h3>
-
 </div>
 
-<!-- MENSAJE DE ERROR  -->
+<!-- MENSAJES -->
 
 <div class="contenedor-mensajes">
-
 {% if messages %}
     {% for message in messages %}
-        <div class="mensaje-alerta">
-            {{ message }}
-        </div>
+        <div class="mensaje-alerta">{{ message }}</div>
     {% endfor %}
 {% endif %}
-
 </div>
 
-<!-- PRODUCTOS -->
+<!-- TITULO -->
 
-<div class="contenido">
+<div class="titulo">
+🔥 Productos disponibles
+</div>
 
-<h1 style="margin-bottom:30px;">Productos disponibles</h1>
-</div class="contenido">
-
+<!-- GRID -->
 
 <div class="grid">
 
@@ -309,26 +262,22 @@ body{
 
 <h3>{{ producto.nombre }}</h3>
 
-<p>{{ producto.descripcion }}</p>
+<p>{{ producto.descripcion|truncatechars:80 }}</p>
 
-<p><strong>Precio: ${{ producto.precio }}</strong></p>
+<p class="precio">$ {{ producto.precio }}</p>
 
-<p>Cantidad disponible: {{ producto.cantidad }}</p>
-
+<p class="stock">Stock: {{ producto.cantidad }}</p>
 
 <form action="{% url 'agregar_carrito' producto.id %}" method="POST">
-
 {% csrf_token %}
 
-<input type="number" name="cantidad" value="1" min="1" style="width:60px; padding:5px;">
+<input type="number" name="cantidad" value="1" min="1">
 
-<button onclick="agregarCarrito({{ producto.id }})">
-    Agregar al carrito 🛒
+<button class="btn">
+🛒 Agregar
 </button>
 
-
 </form>
-
 
 </div>
 
@@ -340,28 +289,17 @@ body{
 
 </div>
 
-</div>
 <script>
 
-setTimeout(function(){
-
-    let mensajes = document.querySelectorAll(".mensaje-alerta");
-
-    mensajes.forEach(function(mensaje){
-
-        mensaje.style.transition = "opacity 1s";
-        mensaje.style.opacity = "0";
-
-        setTimeout(function(){
-            mensaje.remove();
-        },1000);
-
+// desaparecer mensajes
+setTimeout(()=>{
+    document.querySelectorAll(".mensaje-alerta").forEach(m=>{
+        m.style.opacity="0";
+        setTimeout(()=>m.remove(),1000);
     });
-
-},5000);
+},4000);
 
 </script>
 
 </body>
-
 </html>

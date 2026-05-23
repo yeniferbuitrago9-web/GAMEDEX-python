@@ -26,8 +26,6 @@ from django.views.decorators.csrf import csrf_exempt
 # INICIO
 # =====================================
 
-
-
 def inicio(request):
     print("ENTRANDO A INICIO 🔥")
 
@@ -331,6 +329,36 @@ def dashboard_admin(request):
         "total_vendedores": total_vendedores,
         "total_admins": total_admins
     })
+
+def lista_usuarios(request):
+    query = request.GET.get("q", "")
+    rol = request.GET.get("rol", "")
+
+    usuarios = User.objects.all()
+
+    if query:
+        usuarios = usuarios.filter(
+            Q(username__icontains=query) |
+            Q(email__icontains=query)
+        )
+
+    if rol:
+        usuarios = usuarios.filter(groups__name=rol)
+
+    usuarios = usuarios.distinct()
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return render(request, "partials/tabla_usuarios.html", {
+            "usuarios": usuarios
+        })
+
+    return render(request, "admin/usuarios.html", {
+        "usuarios": usuarios,
+        "total_usuarios": User.objects.count(),
+        "total_vendedores": User.objects.filter(groups__name="Vendedor").count(),
+        "total_admins": User.objects.filter(groups__name="Administrador").count(),
+    })
+
 
 # =====================================
 # COMUNIDAD Y PUBLICACIONES
@@ -785,22 +813,40 @@ def registro_publico(request):
 # =====================================
 @login_required
 @never_cache
+
+
 def dashboard_vendedor(request):
 
     if not request.user.groups.filter(name="Vendedor").exists():
         messages.error(request, "No tienes permiso.")
         return redirect("redireccion_dashboard")
 
-    productos = Producto.objects.filter(vendedor=request.user)
+    productos = Producto.objects.filter(vendedor=request.user).order_by('-id')
 
-    # 🔥 CONTADORES
+    # 🔎 BUSQUEDA
+    q = request.GET.get('q')
+    if q:
+        productos = productos.filter(nombre__icontains=q)
+
+    # 🔥 CONTADORES (ANTES de paginar)
     total_productos = productos.count()
     publicados = productos.filter(publicado=True).count()
     borradores = productos.filter(publicado=False).count()
     activos = productos.filter(cantidad__gt=1).count()
 
+    # 📄 PAGINADOR (5 por página)
+    paginator = Paginator(productos, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # ⚡ AJAX (clave para que funcione tu dashboard pro)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, "partials/tabla_productos.html", {
+            "page_obj": page_obj
+        })
+
     return render(request, "dashboard_vendedor.html", {
-        "productos": productos,
+        "page_obj": page_obj,   # 👈 IMPORTANTE
         "total_productos": total_productos,
         "publicados": publicados,
         "borradores": borradores,

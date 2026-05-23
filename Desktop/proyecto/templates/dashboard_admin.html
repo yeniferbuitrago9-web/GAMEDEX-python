@@ -1,158 +1,201 @@
 {% extends "layouts/admin_base.html" %}
-
-{% block title %}Panel Administrador{% endblock %}
+{% load static %}
 
 {% block content %}
 
-<!-- ESTADÍSTICAS -->
+<style>
+/* ===== GLOBAL ===== */
+body { background:#0f172a; color:white; font-family:sans-serif; }
+.dashboard { padding:20px; }
 
-<div class="estadisticas">
+/* ===== STATS ===== */
+.stats-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:20px;
+    margin-bottom:30px;
+}
+.stat-card {
+    background:#1e293b;
+    padding:20px;
+    border-radius:15px;
+    text-align:center;
+}
 
-<div class="card">
-    <h4>Usuarios</h4>
-    <p>{{ total_usuarios }}</p>
-</div>
+/* ===== MAIN CARD ===== */
+.main-card {
+    background:#1e293b;
+    padding:20px;
+    border-radius:15px;
+}
 
-<div class="card">
-    <h4>Vendedores</h4>
-    <p>{{ total_vendedores }}</p>
-</div>
+/* HEADER */
+.card-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
 
-<div class="card">
-    <h4>Administradores</h4>
-    <p>{{ total_admins }}</p>
-</div>
+/* BUTTONS */
+.btn {
+    padding:8px 14px;
+    border-radius:8px;
+    text-decoration:none;
+    color:white;
+    margin-left:5px;
+    cursor:pointer;
+}
+.primary{background:#6366f1;}
+.success{background:#16a34a;}
+.danger{background:#dc2626;}
+.warning{background:#f59e0b;}
 
+/* SEARCH + FILTER */
+.filters {
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+}
+.filters input, .filters select {
+    padding:10px;
+    border-radius:8px;
+    border:none;
+}
 
-</div>
+/* TABLE */
+table { width:100%; border-collapse:collapse; }
+th, td { padding:12px; }
+thead { background:#334155; }
+tbody tr:hover { background:#475569; }
 
-<!-- TARJETA PRINCIPAL -->
+.badge {
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
+    background:#6366f1;
+}
 
-<div class="tarjeta">
+.online { color:#22c55e; font-weight:bold; }
+.offline { color:#ef4444; font-weight:bold; }
 
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+/* NOTIFICATIONS */
+#toast-container {
+    position:fixed;
+    top:20px;
+    right:20px;
+    z-index:9999;
+}
+.toast {
+    background:#1e293b;
+    padding:12px 18px;
+    margin-bottom:10px;
+    border-radius:8px;
+    animation:fadeIn 0.3s;
+}
+@keyframes fadeIn {
+    from {opacity:0; transform:translateX(50px);}
+    to {opacity:1;}
+}
+</style>
 
+<div class="dashboard">
 
-<h2>Gestión de Usuarios</h2>
+    <!-- STATS -->
+    <div class="stats-grid">
+        <div class="stat-card">Usuarios<br><h2>{{ total_usuarios }}</h2></div>
+        <div class="stat-card">Vendedores<br><h2>{{ total_vendedores }}</h2></div>
+        <div class="stat-card">Admins<br><h2>{{ total_admins }}</h2></div>
+    </div>
 
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <div class="main-card">
 
-   
+        <div class="card-header">
+            <h2>Gestión de Usuarios</h2>
+            <div>
+                <a href="{% url 'crear_usuario' %}" class="btn primary">+ Nuevo</a>
+                <a href="{% url 'exportar_pdf_usuarios' %}" class="btn danger">PDF</a>
+                <a href="{% url 'exportar_excel_usuarios' %}" class="btn success">Excel</a>
+            </div>
+        </div>
 
-    <div>
-        <a href="{% url 'crear_usuario' %}" class="btn-agregar">
-            + Agregar Usuario
-        </a>
+        <!-- FILTERS -->
+        <div class="filters">
+            <input type="text" id="search" placeholder="Buscar usuario o email...">
+            
+            <select id="rolFilter">
+                <option value="">Todos los roles</option>
+                <option value="Administrador">Administrador</option>
+                <option value="Vendedor">Vendedor</option>
+            </select>
+        </div>
 
-        <a href="{% url 'exportar_pdf_usuarios' %}" class="btn-agregar" style="margin-left:10px;">
-            📄 PDF
-        </a>
+        <!-- TABLE -->
+        <div id="table-container">
+            {% include "partials/tabla_usuarios.html" %}
+        </div>
 
-        <a href="{% url 'exportar_excel_usuarios' %}" class="btn-agregar" style="margin-left:10px;">
-            📊 Excel
-        </a>
     </div>
 
 </div>
 
+<!-- TOAST -->
+<div id="toast-container"></div>
 
-</div>
+<script>
 
-<!-- BUSCADOR -->
-<form method="GET" class="buscador">
-    <input 
-        type="text" 
-        name="q" 
-        placeholder="Buscar por usuario o email..." 
-        value="{{ query|default:'' }}"
-    >
-    <button type="submit">Buscar</button>
-</form>
+/* 🔥 NOTIFICACIONES */
+function showToast(message) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.classList.add('toast');
+    toast.innerText = message;
 
-<!-- TABLA -->
-<table>
-    <thead>
-        <tr>
-            <th>Usuario</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Acción</th>
-        </tr>
-    </thead>
+    container.appendChild(toast);
 
-    <tbody>
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
 
-        {% for usuario in usuarios %}
-        <tr>
+/* 🔥 AJAX SEARCH + FILTER */
+const searchInput = document.getElementById("search");
+const rolFilter = document.getElementById("rolFilter");
 
-            <td>{{ usuario.username }}</td>
+function fetchUsers() {
+    const query = searchInput.value;
+    const rol = rolFilter.value;
 
-            <td>{{ usuario.email }}</td>
+    fetch(`?q=${query}&rol=${rol}`, {
+        headers: {
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    })
+    .then(res => res.text())
+    .then(html => {
+        document.getElementById("table-container").innerHTML = html;
+        showToast("Lista actualizada 🔄");
+    });
+}
 
-            <td>
-                {% for grupo in usuario.groups.all %}
-                    {{ grupo.name }}
-                {% empty %}
-                    Sin rol
-                {% endfor %}
-            </td>
+searchInput.addEventListener("keyup", fetchUsers);
+rolFilter.addEventListener("change", fetchUsers);
 
-            <td>
-                <a class="btn-editar" href="{% url 'editar_usuario' usuario.id %}">
-                    Editar
-                </a>
-            </td>
+/* 🔥 ESTADO ONLINE SIMULADO */
+function randomStatus() {
+    return Math.random() > 0.5 ? "online" : "offline";
+}
 
-        </tr>
+function applyStatus() {
+    document.querySelectorAll(".status").forEach(el => {
+        const state = randomStatus();
+        el.innerText = state;
+        el.classList.add(state);
+    });
+}
 
-        {% empty %}
+applyStatus();
 
-        <tr>
-            <td colspan="4">No se encontraron usuarios.</td>
-        </tr>
-
-        {% endfor %}
-
-    </tbody>
-</table>
-
-
-<!-- PAGINACIÓN -->
-<div class="paginacion">
-
-    {% if usuarios.has_previous %}
-
-        <a href="?page=1{% if query %}&q={{ query }}{% endif %}">
-            « Primera
-        </a>
-
-        <a href="?page={{ usuarios.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">
-            ‹ Anterior
-        </a>
-
-    {% endif %}
-
-
-    <span>
-        Página {{ usuarios.number }} de {{ usuarios.paginator.num_pages }}
-    </span>
-
-
-    {% if usuarios.has_next %}
-
-        <a href="?page={{ usuarios.next_page_number }}{% if query %}&q={{ query }}{% endif %}">
-            Siguiente ›
-        </a>
-
-        <a href="?page={{ usuarios.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}">
-            Última »
-        </a>
-
-    {% endif %}
-
-</div>
-
-
-</div>
+</script>
 
 {% endblock %}
