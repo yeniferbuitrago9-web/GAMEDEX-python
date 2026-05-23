@@ -554,36 +554,35 @@ def eliminar_comunidad(request, id):
 # INVENTARIO ADMIN
 # =====================================
 @login_required
-def inventario_admin(request):
 
-    if not request.user.groups.filter(name="Administrador").exists():
-        messages.error(request, "No tienes permisos.")
-        return redirect("redireccion_dashboard")
+
+
+def inventario_admin(request):
+    productos = Producto.objects.all()
 
     query = request.GET.get("q")
     filtro = request.GET.get("filtro")
 
-    productos_list = Producto.objects.all()
-
-    # 🔍 BUSCADOR
+    # 🔎 BUSCADOR
     if query:
-        productos_list = productos_list.filter(
+        productos = productos.filter(
             Q(nombre__icontains=query) |
-            Q(descripcion__icontains=query) |
-            Q(vendedor__username__icontains=query)
+            Q(descripcion__icontains=query)
         )
 
-    # 🎯 FILTROS
+    # ⚠️ FILTROS
     if filtro == "stock_bajo":
-        productos_list = productos_list.filter(cantidad__lte=5)
+        productos = productos.filter(cantidad__lt=5, cantidad__gt=0)
+
     elif filtro == "sin_stock":
-        productos_list = productos_list.filter(cantidad=0)
+        productos = productos.filter(cantidad=0)
 
-    # 📄 PAGINADOR
-    paginator = Paginator(productos_list.order_by("id"), 5)
-    productos = paginator.get_page(request.GET.get("page"))
+    # 📄 PAGINACIÓN
+    paginator = Paginator(productos, 10)
+    page = request.GET.get("page")
+    productos = paginator.get_page(page)
 
-    return render(request, "inventario_admin.html", {
+    return render(request, "admin/inventario.html", {
         "productos": productos,
         "query": query,
         "filtro": filtro
