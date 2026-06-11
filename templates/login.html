@@ -1,0 +1,245 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GAMEDEX CYBER LOGIN</title>
+    <meta charset="UTF-8">
+
+    <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(270deg, #020617, #0f172a, #020617);
+            background-size: 600% 600%;
+            animation: bgMove 10s infinite alternate;
+        }
+
+        @keyframes bgMove {
+            0% {background-position: 0%;}
+            100% {background-position: 100%;}
+        }
+
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 🔥 LOGIN BOX */
+        .login-box {
+            position: relative;
+            z-index: 2;
+            width: 360px;
+            margin: auto;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 40px;
+            border-radius: 15px;
+            background: rgba(2,6,23,0.9);
+            box-shadow: 0 0 40px #00ffff;
+            text-align: center;
+        }
+
+        /* 👾 GLITCH REAL */
+        .glitch {
+            position: relative;
+            color: #00ffff;
+            font-size: 28px;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: "GAMEDEX LOGIN";
+            position: absolute;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .glitch::before {
+            color: red;
+            animation: glitchTop 1s infinite;
+        }
+
+        .glitch::after {
+            color: blue;
+            animation: glitchBottom 1s infinite;
+        }
+
+        @keyframes glitchTop {
+            0% {clip-path: inset(0 0 80% 0);}
+            50% {clip-path: inset(10% 0 60% 0);}
+            100% {clip-path: inset(0 0 80% 0);}
+        }
+
+        @keyframes glitchBottom {
+            0% {clip-path: inset(80% 0 0 0);}
+            50% {clip-path: inset(60% 0 10% 0);}
+            100% {clip-path: inset(80% 0 0 0);}
+        }
+
+        img {
+            width: 100px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 15px #00ffff);
+        }
+
+        /* INPUT CON ICONOS */
+        .input-group {
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 10px;
+            top: 12px;
+            color: #00ffff;
+            font-size: 18px;
+            pointer-events: none;
+        }
+
+        .login-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* 🔥 CENTRA TODO */
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 12px 12px 35px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: none;
+            background: #020617;
+            color: white;
+            border: 1px solid #00ffff50;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 10px #00ffff;
+        }
+
+        /* BOTON ENERGIA */
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #00ffff, #1e90ff);
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.07);
+            box-shadow: 0 0 25px #00ffff;
+        }
+
+        /* LOADING */
+        .loading {
+            display: none;
+            margin-top: 10px;
+            color: #00ffff;
+            font-size: 14px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% {opacity: 0.3;}
+        }
+
+        a {
+            color: #00ffff;
+            text-decoration: none;
+        }
+
+        p {
+            color: #ccc;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="particles-js"></div>
+
+<div class="login-box">
+
+    <a href="{% url 'inicio' %}">
+        <img src="{% static 'imagenes/logo.png' %}">
+    </a>
+
+    <h2 class="glitch">GAMEDEX LOGIN</h2>
+
+    <form method="post" onsubmit="activarLoading()">
+        {% csrf_token %}
+
+        <!-- USER -->
+        <div class="form-container">
+    <div class="input-group">
+        <i>👤</i>
+        {{ form.username }}
+    </div>
+
+    <div class="input-group">
+        <i>🔒</i>
+        {{ form.password }}
+    </div>
+</div>
+
+        <button type="submit">Entrar</button>
+
+        <div class="loading" id="loading">
+            Iniciando sesión...
+        </div>
+
+        <div style="margin-top:15px;">
+            <p>¿No tienes cuenta?</p>
+            <a href="{% url 'registro_publico' %}">Registrarse</a>
+        </div>
+
+    </form>
+</div>
+
+<script>
+function activarLoading(){
+    document.getElementById("loading").style.display = "block";
+}
+
+particlesJS("particles-js", {
+    particles: {
+        number: { value: 100 },
+        size: { value: 3 },
+        color: { value: "#00ffff" },
+        line_linked: {
+            enable: true,
+            distance: 130,
+            color: "#00ffff",
+            opacity: 0.4
+        },
+        move: {
+            enable: true,
+            speed: 2
+        }
+    },
+    interactivity: {
+        events: {
+            onhover: { enable: true, mode: "grab" },
+            onclick: { enable: true, mode: "push" }
+        },
+        modes: {
+            grab: { distance: 150, line_linked: { opacity: 1 }},
+            push: { particles_nb: 5 }
+        }
+    }
+});
+</script>
+
+</body>
+</html>
